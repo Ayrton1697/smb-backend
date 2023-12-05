@@ -1,0 +1,4 @@
+- Agregar a dynamo campos faltantes (type, description, appointment_id, ref_code, optionals, user_phone_number)
+- Agregar indices que puedan ser de ayuda
+- Terminar funciones
+- Permisos
