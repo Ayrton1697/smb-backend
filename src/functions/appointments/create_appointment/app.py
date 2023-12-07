@@ -2,8 +2,14 @@ import json
 import boto3
 import botocore.exceptions
 import datetime
-
+import os 
 def lambda_handler(event, context):
+
+    access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+    secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
+# 'AKIAQWEIXVN6RBKUF5RG'
+# 'cpyKQuzI6nLs0j9TWGBbIT6FyK+Hd9G4h409i5uA'
 
     """Sample pure Lambda function
 
@@ -36,12 +42,28 @@ def lambda_handler(event, context):
 
     data = json.loads(event['body'])
 
+    try:
+        lambda_client = boto3.client('lambda', region_name='us-east-1', 
+                                    aws_access_key_id=access_key,
+                                    aws_secret_access_key=secret_key)
+        
+        client = boto3.client('dynamodb',
+                                region_name='us-east-1',
+                                aws_access_key_id=access_key,
+                                aws_secret_access_key=secret_key,
+                                endpoint_url= "https://dynamodb.us-east-1.amazonaws.com")
+    except Exception as e:
+        print("Connection problem with AWS")
+        
+        return {
+            "statusCode": 400,
+            "body": json.dumps({
+                "appointment": 'response',
+                "message": "Problem connecting with AWS."
+                # "location": ip.text.replace("\n", "")
+            }),
+        }
 
-    client = boto3.client('dynamodb',
-                              region_name='us-east-1',
-                              aws_access_key_id='AKIAQWEIXVN6RBKUF5RG',
-                              aws_secret_access_key='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',
-                              endpoint_url= "https://dynamodb.us-east-1.amazonaws.com")
     
     try:
         # Check if there is an existing booking with the same email
@@ -58,7 +80,8 @@ def lambda_handler(event, context):
         # ProjectionExpression='booking_time'
         )
         time_difference = []
-        print(response)
+        time_difference = []
+        print('=============================================================')
         print(response['Items'])
         print(response['Items'][0])
         if 'Items' in response:
@@ -81,9 +104,9 @@ def lambda_handler(event, context):
     except Exception as e:
         pass
 
-    
     print(data)
     try:
+        print("INSIDE TRY BLOCK TABLE INSERT")
         response = client.put_item(
         TableName='appointments',
         Item={
@@ -124,6 +147,33 @@ def lambda_handler(event, context):
             ':dup_value': {'S': data["email"] },
         }
         )
+        print(response)
+        print("PUT RESPONSE")
+        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+            # Invoke the email sending Lambda function asynchronously
+            try:
+                email_send = lambda_client.invoke(
+                    FunctionName= os.environ.get('SendEmailFunctionName'),
+                    InvocationType='RequestResponse',
+                    Payload=json.dumps({
+                         "body": json.dumps({
+                            "email": data["email"],
+                            "message": "El email fue enviado exitosamente."
+
+                    })}
+                    )
+                )
+                print(email_send)
+                print("sent email response")
+            except Exception as e:
+                print(e)
+                pass
+            #      return {
+            #     "statusCode": 400,
+            #     "body": json.dumps({
+            #         "message": "Lo sentimos.Ha ocurrido un error al enviar el email."
+            #     }),
+            # }
     except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return {

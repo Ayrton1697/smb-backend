@@ -2,6 +2,7 @@ import json
 import boto3
 import botocore.exceptions
 import datetime
+import os 
 
 def lambda_handler(event, context):
 
@@ -37,47 +38,32 @@ def lambda_handler(event, context):
     
     data = json.loads(event['body'])
     data["appointment_id"]
-
+    
+    access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+    secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
     client = boto3.client('dynamodb',
-                              region_name='us-east-1',
-                              aws_access_key_id='AKIAQWEIXVN6RBKUF5RG',
-                              aws_secret_access_key='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',
-                              endpoint_url= "https://dynamodb.us-east-1.amazonaws.com")
+                                region_name='us-east-1',
+                                aws_access_key_id=access_key,
+                                aws_secret_access_key=secret_key,
+                                endpoint_url= "https://dynamodb.us-east-1.amazonaws.com")
     
    
     print(data)
     try:
         response = client.delete_item(
         TableName='appointments',
-        Item={
-            'USER_ID' : {
-            'N': data["user_id"]
-                },
-            'TIME' : {
-                'S': data["appointment_datetime"]
-                },
-            'mail' : {
-                'S': data["email"]
-                },
-            'CLIENT_ID' : {
-                'S': data["client_id"]
-                },
-        },
-        ConditionExpression='mail = :empty_value AND mail <> :dup_value',
-        ExpressionAttributeValues={
-            ':empty_value': {'S': ""},
-            ':dup_value': {'S': data["email"] },
+        Key={
+            'string': 'string'
         }
         )
     except botocore.exceptions.ClientError as e:
-        if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
-            return {
-            "statusCode": 400,
-            "body": json.dumps({
-                "message": "Lo sentimos.Ese horario ya se encuentra reservado."
-                # "location": ip.text.replace("\n", "")
-            }),
-         }
+        return {
+        "statusCode": 400,
+        "body": json.dumps({
+            "message": "Ha ocurrido un error al borrar el turno."
+            # "location": ip.text.replace("\n", "")
+        }),
+        }
 
 
 
@@ -85,7 +71,7 @@ def lambda_handler(event, context):
         "statusCode": 200,
         "body": json.dumps({
             "appointment": 'response',
-            "message": "El turno fue creado exitosamente."
+            "message": "El turno fue borrado exitosamente."
             # "location": ip.text.replace("\n", "")
         }),
     }

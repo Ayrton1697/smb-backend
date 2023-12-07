@@ -73,4 +73,13 @@ manifest_hash = ""
 packagetype = "Zip"
 functions = ["DeleteAppointmentFunction"]
 
+[function_build_definitions.b58cc2c8-69aa-41b2-ae7f-167f894f0399]
+codeuri = "D:\\smb-backend\\smb-backend\\smb-backend\\src\\functions\\send_email"
+runtime = "python3.9"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["SendEmailFunction"]
+
 [layer_build_definitions]

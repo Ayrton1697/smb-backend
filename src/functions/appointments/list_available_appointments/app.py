@@ -1,16 +1,17 @@
 import json
 import boto3
-
+import os
 # Configuración de las credenciales de AWS
-aws_access_key_id = 'AKIAQWEIXVN6Q6WSENFZ'
-aws_secret_access_key = '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'
+access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
 aws_region = 'us-east-1'  # Reemplaza con la región de tu tabla DynamoDB
 table_name = 'appointments'
 
 # Inicializar el cliente de DynamoDB
 dynamodb = boto3.resource('dynamodb',
-                          aws_access_key_id=aws_access_key_id,
-                          aws_secret_access_key=aws_secret_access_key,
+                          aws_access_key_id=access_key,
+                          aws_secret_access_key=secret_key,
                           region_name=aws_region)
 
 # Obtener la referencia a la tabla

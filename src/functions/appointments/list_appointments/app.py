@@ -1,6 +1,6 @@
 import json
 import boto3
-
+import os
 
 
 def lambda_handler(event, context):
@@ -27,11 +27,13 @@ def lambda_handler(event, context):
     """
 
   
+    access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+    secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
     client = boto3.client('dynamodb',
-                              region_name='us-east-1',
-                              aws_access_key_id='AKIAQWEIXVN6RBKUF5RG',
-                              aws_secret_access_key='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',
-                              endpoint_url= "https://dynamodb.us-east-1.amazonaws.com")
+                                region_name='us-east-1',
+                                aws_access_key_id=access_key,
+                                aws_secret_access_key=secret_key,
+                                endpoint_url= "https://dynamodb.us-east-1.amazonaws.com")
     
    
     try:
@@ -55,7 +57,7 @@ def lambda_handler(event, context):
         return {
             "statusCode": 200,
             "body": json.dumps({
-                "appointments": json.dumps(items),
+                "appointments": items,
             }),
         }
     except Exception as e:

@@ -100,8 +100,12 @@ Resources:
       Runtime: python3.9
       Policies:
       - AmazonDynamoDBFullAccess
+      - AWSLambda_FullAccess
       Architectures:
       - x86_64
+      Environment:
+        Variables:
+          SendEmailFunctionName: !Ref SendEmailFunction
       Events:
         Appointments:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -138,9 +142,25 @@ Resources:
         Appointments:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /appointments/{id}
+            Path: /appointments
             Method: DELETE
-
+  SendEmailFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: SendEmailFunction
+      CodeUri: src/functions/send_email/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        Appointments:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /send_email
+            Method: POST
   MyTable:
     Type: AWS::Serverless::SimpleTable # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -176,3 +196,5 @@ Outputs:
   HelloWorldFunctionIamRole:
     Description: Implicit IAM Role created for Hello World function
     Value: !GetAtt HelloWorldFunctionRole.Arn
+  SendEmailFunctionName:
+    Value: !Ref SendEmailFunction
