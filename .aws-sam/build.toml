@@ -82,4 +82,13 @@ manifest_hash = ""
 packagetype = "Zip"
 functions = ["SendEmailFunction"]
 
+[function_build_definitions.5c46e113-f8ed-4e5a-af9f-736dabd365c8]
+codeuri = "D:\\smb-backend\\smb-backend\\smb-backend\\src\\functions\\tasks"
+runtime = "python3.9"
+architecture = "x86_64"
+handler = "update_task.lambda_handler"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["UpdateTaskFunction"]
+
 [layer_build_definitions]

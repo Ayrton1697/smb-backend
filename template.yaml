@@ -161,6 +161,23 @@ Resources:
           Properties:
             Path: /send_email
             Method: POST
+  UpdateTaskFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: UpdateTaskFunction
+      CodeUri: src/functions/tasks/
+      Handler: update_task.lambda_handler
+      Runtime: python3.9
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        Appointments:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /update_task
+            Method: POST
   MyTable:
     Type: AWS::Serverless::SimpleTable # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
